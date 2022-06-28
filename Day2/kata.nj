@@ -1,0 +1,52 @@
+// https://adventofcode.com/2015/day/2
+import "./assertions.nj"
+
+function wrappingPaper(width, height, lenght) {
+	var side1 = 2 * width * lenght;
+	var side2 = 2 * width * height;
+	var side3 = 2 * height * lenght;
+	var smallestSide = side1/2;
+
+	if (side2/2 < smallestSide) {
+		smallestSide = side2/2;
+	}
+
+	if (side3/2 < smallestSide) {
+		smallestSide = side3/2;
+	}
+
+	return side1 + side2 + side3 + smallestSide;
+}
+
+function createArrayFromInput(dimensions, position) {
+	var parts = dimensions.split("x")
+
+
+	return parts[position].int();
+}
+
+import "./Day2/input.nj";
+var linesArr = input.split("\n");
+
+
+assertEquals(wrappingPaper(2, 3, 4), 58, "Wrapping Paper Present 1");
+assertEquals(wrappingPaper(1, 1, 10), 43, "Wrapping Paper Present 2");
+
+assertEquals(createArrayFromInput("0x1x2", 0), 0, "Unable to get value from input");
+assertEquals(createArrayFromInput("0x1x2", 1), 1, "Unable to get value from input");
+assertEquals(createArrayFromInput("0x1x2", 2), 2, "Unable to get value from input");
+
+
+var total = 0; 
+for(var i = 0; i <= len(linesArr)-1; i = i + 1) {
+	var lineOfPresent = linesArr[i]
+	puts(lineOfPresent)
+	var width = createArrayFromInput(lineOfPresent, 0)
+	var height = createArrayFromInput(lineOfPresent, 1)
+	var lenght = createArrayFromInput(lineOfPresent, 2)
+	total = total + wrappingPaper(width, height, lenght)
+}
+
+// puts("Elves need to buy " + total.string() + " feets of wrapper paper for presents");
+
+

@@ -1,0 +1,9 @@
+function assertEquals(input, expected, message) {
+	if (input == expected) {
+		puts("Test PASS: " + message);
+		return;
+	}
+
+	puts("ERROR: " + message)
+	return;
+}

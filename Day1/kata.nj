@@ -1,0 +1,32 @@
+// Kata 1  
+// https://adventofcode.com/2015/day/1
+// TODO: There are a bug if we don't provide with all arguments required to function give and error  function add(x) {}; add(); <- error
+// TODO: Possibility to convert int, float to string.  
+
+import "./assertions.nj"
+
+function santa(input) {
+	var total = 0;
+	for(var i = 0; i <= len(input)-1; i = i + 1) {
+		if (input[i] == "(") {
+			total = total + 1;
+		} else {
+			total = total - 1;
+		}
+	}
+	return total;
+}
+
+
+
+assertEquals(santa("("), 1, "Santa goes UP");
+assertEquals(santa(")"), -1, "Santa goes DOWN")
+assertEquals(santa("(("), 2, "Santa goes UP 2 times ((");
+assertEquals(santa("))"), -2, "Santa goes DOWN 2 times ))");
+assertEquals(santa("()"), 0, "Santa stay in same floor");
+assertEquals(santa("(()"), 1, "Santa goes up 1 floor");
+assertEquals(santa("()("), 1, "Santa goes up 1 floor");
+
+var whatFloor = import "./Day1/santa-floor.nj";
+puts("Santa is on floor: ", santa(santaLocation));
+
