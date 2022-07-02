@@ -40,13 +40,13 @@ assertEquals(createArrayFromInput("0x1x2", 2), 2, "Unable to get value from inpu
 var total = 0; 
 for(var i = 0; i <= len(linesArr)-1; i = i + 1) {
 	var lineOfPresent = linesArr[i]
-	puts(lineOfPresent)
 	var width = createArrayFromInput(lineOfPresent, 0)
 	var height = createArrayFromInput(lineOfPresent, 1)
 	var lenght = createArrayFromInput(lineOfPresent, 2)
 	total = total + wrappingPaper(width, height, lenght)
 }
 
+puts(total.string())
 // puts("Elves need to buy " + total.string() + " feets of wrapper paper for presents");
 
 
