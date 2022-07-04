@@ -1,0 +1,58 @@
+// https://adventofcode.com/2015/day/2
+import "./assertions.ninja"
+
+function checkVisiedPosition(arr, coord) {
+	for (var i = 0; i <= arr.length()-1; i = i + 1) {
+		var item = arr[i];
+		if (item[0] == coord[0] && item[1] == coord[1]) {
+			return true
+		}
+	}
+
+	return false;
+}
+
+function directions(directions) {
+	var parts = len(directions)
+
+	/*
+		[x, y]
+		x -> < >
+		y -> ^ v
+	*/
+	var arr = [[0, 0]];
+
+	for (var i = 0; i <= parts-1; i = i + 1) {
+		
+		var d = directions[i].lower()
+		var lastPart = last(arr)
+
+		if (d == ">") {
+			lastPart[0] = lastPart[0] + 1
+		}
+
+		if (d == "v") {
+			lastPart[1] = lastPart[1] + 1
+		}
+		
+		if (d == "<") {
+			lastPart[0] = lastPart[0] - 1
+		}
+
+		if (d == "^") {
+			lastPart[1] = lastPart[1] - 1
+		}
+
+		if (!checkVisiedPosition(arr, lastPart)) {
+			arr.push(d)
+		}
+		
+	}
+
+	return len(arr)
+}
+
+puts(directions(">"));
+assertEquals(directions(">"), 2, "2 present was delivery");
+puts(directions("^>v<"));
+assertEquals(directions("^>v<"), 4, "4 present was delivery");

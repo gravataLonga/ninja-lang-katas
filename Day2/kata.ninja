@@ -1,5 +1,5 @@
 // https://adventofcode.com/2015/day/2
-import "./assertions.nj"
+import "./assertions.ninja"
 
 function wrappingPaper(width, height, lenght) {
 	var side1 = 2 * width * lenght;
@@ -46,7 +46,6 @@ for(var i = 0; i <= len(linesArr)-1; i = i + 1) {
 	total = total + wrappingPaper(width, height, lenght)
 }
 
-puts(total.string())
-// puts("Elves need to buy " + total.string() + " feets of wrapper paper for presents");
+puts("Elves need to buy " + total.string() + " feets of wrapper paper for presents");
 
 
