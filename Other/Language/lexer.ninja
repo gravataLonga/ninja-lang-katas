@@ -1,0 +1,89 @@
+// Lexer
+return function(input) {
+
+	var state = {
+		"input": input,
+		"curPosition": -1,
+		"curChar": "",
+		"peekChar": ""
+	}
+
+	function nextChar() {
+		if (state["curPosition"] + 1 > len(state["input"])) {
+			state["curChar"] = 0;
+		} else {
+			state["curChar"] = state["input"][state["curPosition"]];
+		}
+
+		state["curPosition"] = state["curPosition"] + 1;
+		state["peekChar"] = state["input"][state["curPosition"]+1];
+	}
+
+	function skipWhitespace() {
+		for (;;) {
+			if (isWhitespace(state["curChar"])) {
+				nextChar();
+			} else {
+				break;
+			}
+		}
+	}
+
+	function isWhitespace(char) {
+		return char == " " || char == "\t" || char == "\n" || char == "\r"
+	}
+
+	function isDigit(char) {
+		return
+			char == "0" || 
+			char == "1" || 
+			char == "2" ||
+			char == "3" ||
+			char == "4" ||
+			char == "5" ||
+			char == "6" ||
+			char == "7" ||
+			char == "8" ||
+			char == "9";
+	}
+
+	function newToken(tokenType, literal) {
+		return {"type": tokenType, "literal": literal};
+	} 
+
+	nextChar();
+	nextChar();
+
+	return {
+		"nextToken": function () {
+			skipWhitespace();
+			var token = TOKENS::ILLEGAL;
+			
+			if (isDigit(state["curChar"])) {
+				token = newToken(TOKENS::DIGIT, state["curChar"])
+			}
+
+			if (state["curChar"] == "+") {
+				token = newToken(TOKENS::PLUS, state["curChar"])
+			}
+
+			if (state["curChar"] == "-") {
+				token = newToken(TOKENS::MINUS, state["curChar"])
+			}
+
+			if (state["curChar"] == "*") {
+				token = newToken(TOKENS::ASTERISK, state["curChar"])
+			}
+
+			if (state["curChar"] == "/") {
+				token = newToken(TOKENS::DIVIDED, state["curChar"])
+			}
+
+			if (state["curChar"] == 0) {
+				token = newToken(TOKENS::EOF, state["curChar"])
+			}
+			nextChar();
+			return token
+		}
+	}
+}

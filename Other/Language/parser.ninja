@@ -1,0 +1,119 @@
+import "token.ninja";
+import "precedence.ninja";
+var lexer = import "lexer.ninja";
+
+return function parser(input) {
+
+	var l = lexer(input);
+	var nextLexerToken = l["nextToken"];
+
+	var curToken = nextLexerToken();
+
+	var state = {
+		"curToken": curToken,
+		"peekToken": nextLexerToken(),
+		"statements": [],
+	}
+
+	var prefix = {
+		TOKENS::DIGIT: function () {
+			return digitAst(state["curToken"]["literal"].int());
+		}
+	}
+
+	var infix = {
+		TOKENS::PLUS: function (left) {
+			return digitAst(state["curToken"]["literal"].int());
+		},
+		TOKENS::MINUS: function (left) {
+			return digitAst(state["curToken"]["literal"].int());
+		},
+		TOKENS::ASTERISK: function (left) {
+			return digitAst(state["curToken"]["literal"].int());
+		},
+		TOKENS::DIVIDED: function (left) {
+			return digitAst(state["curToken"]["literal"].int());
+		}
+	}
+
+	var precedenceTokens = {
+		"DIGIT": PRECEDENCE::LOWEST,
+		"PLUS": PRECEDENCE::SUM,
+		"MINUS": PRECEDENCE::SUM,
+		"ASTERISK": PRECEDENCE::PRODUCT,
+		"DIVIDED": PRECEDENCE::PRODUCT
+	};
+
+	function errorAst(message) {
+		return {"type": "ERROR", "message": message}
+	}
+
+	function expressionStatementAst() {
+		return {"token": state["curToken"], "expression": ""}
+	}
+
+	function digitAst(literal) {
+		return {"token": state["curToken"], "literal": literal}
+	}
+
+	function nextToken() {
+		state["curToken"] = state["peekToken"]
+		state["peekToken"] = nextLexerToken();
+	}
+
+	function parseStatement() {
+		// nextToken(), PRECEDENCE::LOWEST)
+
+		// swith by statement, but we don't have statement, only expressions...
+		return parseExpressionStatement()
+	}
+
+	function parseExpressionStatement() {
+		var ast = expressionStatementAst();
+		ast["expression"] = parseExpression(PRECEDENCE::LOWEST);
+		return ast;
+	}
+
+	function parseExpression(precedence) {
+		if (!state["prefix"].has(state["curToken"]["type"])) {
+			return errorAst("prefix not found: " + state["curToken"]["literal"]);
+		}
+
+		var prefix = state["prefix"][state["curToken"]["type"]]
+		var leftExp = prefix()
+
+		if (precedence < peekPrecendece()) {
+			if (!state["infix"].has(state["peekToken"]["type"])) {
+				return leftExp;
+			}
+			nextToken()
+			leftExp = state["infix"][state["peekToken"]["type"]](leftExp);
+		}
+		return leftExp;
+	}
+
+	nextToken()
+	nextToken()
+
+	function peekPrecendece() {
+		if (precedenceTokens.has(state["peekToken"]["type"])) {
+			return precedenceTokens[state["peekToken"]["type"]];
+		}
+		return PRECEDENCE::LOWEST;
+	}
+
+	return {
+		"program": function () {
+
+			for (;;) {
+				var stmt = parseStatement();
+				if (state["curToken"]["type"] == TOKENS::EOF) {
+					break;
+				}
+
+				nextToken();
+			}
+			return state["statements"];
+		}
+	}
+}

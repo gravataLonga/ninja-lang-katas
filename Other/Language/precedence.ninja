@@ -1,0 +1,5 @@
+enum PRECEDENCE {
+	case LOWEST: 0;
+	case SUM: 1;
+	case PRODUCT: 2;
+}

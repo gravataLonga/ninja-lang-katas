@@ -1,0 +1,3 @@
+var parser = import "parser.ninja"
+
+puts(parser("1")["program"]())
