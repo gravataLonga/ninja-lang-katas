@@ -1,3 +1,34 @@
-var parser = import "parser.ninja"
+var parserLib = import "parser.ninja"
 
-puts(parser("1")["program"]())
+var parser = parserLib("123 / 123 * 123");
+
+var program = parser["program"]();
+
+puts(parser["prettyPrinter"](program));
+/*
+
+[
+	{
+		type: expression, 
+		token: {type: DIGIT_TOKEN, literal: 123}, 
+		expression: [
+			{
+				token: {type: DIGIT_TOKEN, literal: 123}, 
+				expression: {
+					right: {
+						type: expression, 
+						token: {literal: 123, type: DIGIT_TOKEN}, 
+						expression: [
+							{type: digit, expression: 123, string: 123}
+						]
+					}, 
+					left: {expression: 123, string: 123, type: digit}, 
+					operator: +
+				}, 
+				type: infix
+			}
+		]
+	}
+]
+
+*/

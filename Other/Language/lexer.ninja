@@ -51,6 +51,17 @@ return function(input) {
 		return {"type": tokenType, "literal": literal};
 	} 
 
+	function consumeCharUntil(fn) {
+		var chars = "";
+
+		for (;fn(state["curChar"]);) {
+			chars = chars + state["curChar"];
+			nextChar();
+		}
+
+		return chars;
+	}
+
 	nextChar();
 	nextChar();
 
@@ -60,30 +71,44 @@ return function(input) {
 			var token = TOKENS::ILLEGAL;
 			
 			if (isDigit(state["curChar"])) {
-				token = newToken(TOKENS::DIGIT, state["curChar"])
+				token = newToken(TOKENS::DIGIT, consumeCharUntil(isDigit))
+				nextChar();
+				return token
 			}
 
 			if (state["curChar"] == "+") {
 				token = newToken(TOKENS::PLUS, state["curChar"])
+				nextChar();
+				return token
 			}
 
 			if (state["curChar"] == "-") {
 				token = newToken(TOKENS::MINUS, state["curChar"])
+				nextChar();
+				return token
 			}
 
 			if (state["curChar"] == "*") {
 				token = newToken(TOKENS::ASTERISK, state["curChar"])
+				nextChar();
+				return token
 			}
 
 			if (state["curChar"] == "/") {
 				token = newToken(TOKENS::DIVIDED, state["curChar"])
+				nextChar();
+				return token
 			}
 
 			if (state["curChar"] == 0) {
 				token = newToken(TOKENS::EOF, state["curChar"])
+				nextChar();
+				return token
 			}
+
 			nextChar();
 			return token
+			
 		}
 	}
 }

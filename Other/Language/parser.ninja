@@ -2,58 +2,39 @@ import "token.ninja";
 import "precedence.ninja";
 var lexer = import "lexer.ninja";
 
+var GLOBAL_IDENT = 0;
+
+function trace(msg) {
+
+	function getIdent() {
+		var out = GLOBAL_IDENT.string();
+		for(var i = 0; i < GLOBAL_IDENT; i++) {
+			out = out + "\t";
+		}
+		return out;
+	}
+
+	return [function() {
+		puts(getIdent() + "Start " + msg)
+		GLOBAL_IDENT++;
+	}, function () {
+		
+		puts(getIdent() + "End " + msg)
+		GLOBAL_IDENT--
+	}]
+}
+
 return function parser(input) {
 
 	var l = lexer(input);
+
 	var nextLexerToken = l["nextToken"];
 
-	var curToken = nextLexerToken();
 
 	var state = {
-		"curToken": curToken,
-		"peekToken": nextLexerToken(),
+		"curToken": false,
+		"peekToken": false,
 		"statements": [],
-	}
-
-	var prefix = {
-		TOKENS::DIGIT: function () {
-			return digitAst(state["curToken"]["literal"].int());
-		}
-	}
-
-	var infix = {
-		TOKENS::PLUS: function (left) {
-			return digitAst(state["curToken"]["literal"].int());
-		},
-		TOKENS::MINUS: function (left) {
-			return digitAst(state["curToken"]["literal"].int());
-		},
-		TOKENS::ASTERISK: function (left) {
-			return digitAst(state["curToken"]["literal"].int());
-		},
-		TOKENS::DIVIDED: function (left) {
-			return digitAst(state["curToken"]["literal"].int());
-		}
-	}
-
-	var precedenceTokens = {
-		"DIGIT": PRECEDENCE::LOWEST,
-		"PLUS": PRECEDENCE::SUM,
-		"MINUS": PRECEDENCE::SUM,
-		"ASTERISK": PRECEDENCE::PRODUCT,
-		"DIVIDED": PRECEDENCE::PRODUCT
-	};
-
-	function errorAst(message) {
-		return {"type": "ERROR", "message": message}
-	}
-
-	function expressionStatementAst() {
-		return {"token": state["curToken"], "expression": ""}
-	}
-
-	function digitAst(literal) {
-		return {"token": state["curToken"], "literal": literal}
 	}
 
 	function nextToken() {
@@ -61,39 +42,134 @@ return function parser(input) {
 		state["peekToken"] = nextLexerToken();
 	}
 
-	function parseStatement() {
-		// nextToken(), PRECEDENCE::LOWEST)
-
-		// swith by statement, but we don't have statement, only expressions...
-		return parseExpressionStatement()
+	function infixOperator(left) {
+		var operator = state["curToken"]["literal"];
+		nextToken();
+		var p = parseStatement();
+		return infixAst(left, operator, parseStatement())
 	}
 
-	function parseExpressionStatement() {
-		var ast = expressionStatementAst();
-		ast["expression"] = parseExpression(PRECEDENCE::LOWEST);
-		return ast;
+	var arrPrefix = {
+		TOKENS::DIGIT: function () {
+			return digitAst(state["curToken"]["literal"].int());
+		}
 	}
 
 	function parseExpression(precedence) {
-		if (!state["prefix"].has(state["curToken"]["type"])) {
+		if (!arrPrefix.has(state["curToken"]["type"])) {
 			return errorAst("prefix not found: " + state["curToken"]["literal"]);
 		}
+		var prefix = arrPrefix[state["curToken"]["type"]]
 
-		var prefix = state["prefix"][state["curToken"]["type"]]
 		var leftExp = prefix()
-
 		if (precedence < peekPrecendece()) {
-			if (!state["infix"].has(state["peekToken"]["type"])) {
+			if (!arrInfix.has(state["peekToken"]["type"])) {
 				return leftExp;
 			}
 			nextToken()
-			leftExp = state["infix"][state["peekToken"]["type"]](leftExp);
+			leftExp = arrInfix[state["curToken"]["type"]](leftExp);
 		}
+
 		return leftExp;
 	}
 
-	nextToken()
-	nextToken()
+	function prettyPrinter (ast) {
+		var out = "";
+		for (var i = 0; i <= len(ast)-1; i++) {
+			var currentAst = ast[i];
+			out = out + prettyFunctionExpression(currentAst)
+		}
+		return out;
+	}
+
+	function prettyFunctionExpression(ast) {
+
+		if (ast.type() == "ARRAY") {
+			return prettyPrinter(ast);
+		}
+
+		var out = "";
+		if (!ast.has("type")) {
+			out = out + " (current ast don't have type property);";
+		} else {
+			if (!prettyFunctions[ast["type"]]) {
+				out = out + " (current ast pretty function " + ast["type"]  + ");";
+			} else {
+				out = out + prettyFunctions[ast["type"]](ast["expression"]);
+			}
+		}
+		return out;
+	}
+
+	function prettyFunctionDigit(ast) {
+		return ast.string();
+	}
+
+	function prettyFunctionInfix(ast) {
+		if (!ast) {
+			return "";
+		}
+		return "(" + prettyFunctionExpression(ast["left"]) + " " + ast["operator"] + " " + prettyFunctionExpression(ast["right"]["expression"]) + ")";
+	}
+
+	var prettyFunctions = {
+		"digit": prettyFunctionDigit,
+		"infix": prettyFunctionInfix,
+		"expression": prettyFunctionExpression
+	}
+
+	var arrInfix = {
+		TOKENS::PLUS: infixOperator,
+		TOKENS::MINUS: infixOperator,
+		TOKENS::ASTERISK: infixOperator,
+		TOKENS::DIVIDED: infixOperator
+	}
+
+	var precedenceTokens = {
+		TOKENS::DIGIT : PRECEDENCE::LOWEST,
+		TOKENS::PLUS : PRECEDENCE::SUM,
+		TOKENS::MINUS : PRECEDENCE::SUM,
+		TOKENS::ASTERISK : PRECEDENCE::PRODUCT,
+		TOKENS::DIVIDED : PRECEDENCE::PRODUCT
+	};
+
+	function errorAst(message) {
+		return {"type": "ERROR", "message": message}
+	}
+
+	function expressionStatementAst() {
+		return {"type": "expression", "expression": []}
+	}
+
+	function digitAst(literal) {
+		return {"type": "digit", "expression": literal, "string": literal.string()}
+	}
+
+	function infixAst(left, operator, right) {
+		return {"type": "infix", "expression": {"left": left, "operator": operator, "right": right}};
+	}
+
+	function parseStatement() {
+		var t = trace("Parse Statement");
+		t[0]();
+		// nextToken(), PRECEDENCE::LOWEST)
+
+		// swith by statement, but we don't have statement, only expressions...
+		var a = parseExpressionStatement()
+		t[1]();
+		return a
+	}
+
+	function parseExpressionStatement() {
+		var t = trace("Expression Statement");
+		t[0]();
+
+		var ast = expressionStatementAst();
+		ast["expression"].push(parseExpression(PRECEDENCE::LOWEST));
+
+		t[1]();
+		return ast;
+	}
 
 	function peekPrecendece() {
 		if (precedenceTokens.has(state["peekToken"]["type"])) {
@@ -102,16 +178,23 @@ return function parser(input) {
 		return PRECEDENCE::LOWEST;
 	}
 
+	
 	return {
+		"prettyPrinter": prettyPrinter,
 		"program": function () {
-
-			for (;;) {
+			nextToken();
+			nextToken();
+			for (;state["curToken"]["type"] != TOKENS::EOF;) {
+				var t = trace("Program");
+				t[0]();
 				var stmt = parseStatement();
-				if (state["curToken"]["type"] == TOKENS::EOF) {
-					break;
+
+				if (stmt) {
+					state["statements"].push(stmt)
 				}
 
 				nextToken();
+				t[1]();
 			}
 			return state["statements"];
 		}
