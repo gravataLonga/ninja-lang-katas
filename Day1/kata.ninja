@@ -23,6 +23,6 @@ assertEquals(santa("()"), 0, "Santa stay in same floor");
 assertEquals(santa("(()"), 1, "Santa goes up 1 floor");
 assertEquals(santa("()("), 1, "Santa goes up 1 floor");
 
-var whatFloor = import "./Day1/santa-floor.nj";
+var whatFloor = import "./Day1/santa-floor.ninja";
 puts("Santa is on floor: ", santa(santaLocation));
 

@@ -1,0 +1,27 @@
+import "mylib.croc"
+
+var html = Widget<Html> {
+	
+	Title = "Hello World"	
+	Description = "Here we can create any description we want"	
+
+	return {
+		"<h1>Hello World</h1>"
+	}
+}
+
+Col<id> {
+	
+
+}
+
+Grid<main> {
+	return {
+		Col<6> {
+			return {
+				"<p>Column!</p>"
+			}
+		},
+		$id
+	}
+}

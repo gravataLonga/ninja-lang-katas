@@ -25,7 +25,7 @@ function createArrayFromInput(dimensions, position) {
 	return parts[position].int();
 }
 
-import "./Day2/input.nj";
+import "./Day2/input.ninja";
 var linesArr = input.split("\n");
 
 
